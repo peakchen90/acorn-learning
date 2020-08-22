@@ -8,7 +8,7 @@ const pp = Parser.prototype
 // the location of the error, attaches the position to the end
 // of the error message, and then raises a `SyntaxError` with that
 // message.
-
+// 此函数用于引发解析错误的异常，附带位置信息
 pp.raise = function(pos, message) {
   let loc = getLineInfo(this.input, pos)
   message += " (" + loc.line + ":" + loc.column + ")"

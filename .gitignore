@@ -1,4 +1,6 @@
 .DS_Store
+.idea
+.vscode
 **/node_modules
 !/acorn-loose/node_modules
 /.tern-port

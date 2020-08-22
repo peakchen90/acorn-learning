@@ -13,6 +13,13 @@
 // the technique outlined above, which uses different, nesting
 // functions to specify precedence, for all of the ten binary
 // precedence levels that JavaScript defines.
+
+// 定义针对特定句法处理的函数来解析各种操作，通过递归分解处理。递归调用这些函数，每个函数接受字符串，返回 AST 节点对象。
+// 执行的优先级（比如：`!x[1]` 的优先级和 `!(x[1])` 一样，和 `(!x)[1]` 不一样）
+// 解析函数首先解析一元前缀运算符，然后调用解析`[]` 下标的函数，这样，就得到已经解析的 `x[1]` 节点，并将 `x[1]` 节点包装在一元操作符里
+//
+// Acorn 用了一个 [operator precedence parser][opp] 去处理二元运算符优先级，因为它比上面这种更紧凑。针对JS定义的10个二元运算符优先级，
+// 用不同的、嵌套的函数去解析
 //
 // [opp]: http://en.wikipedia.org/wiki/Operator-precedence_parser
 
@@ -28,6 +35,8 @@ const pp = Parser.prototype
 // Object/class getters and setters are not allowed to clash —
 // either with each other or with an init property — and in
 // strict mode, init properties are also not allowed to be repeated.
+// 检查属性名称是否与已添加的名称冲突。对象/类的 getter 和 setter 不允许发生冲突（彼此之间或与初始的属性发生冲突），
+// 并且在严格模式下，也不允许重复初始的属性。
 
 pp.checkPropClash = function(prop, propHash, refDestructuringErrors) {
   if (this.options.ecmaVersion >= 9 && prop.type === "SpreadElement")
@@ -36,9 +45,14 @@ pp.checkPropClash = function(prop, propHash, refDestructuringErrors) {
     return
   let {key} = prop, name
   switch (key.type) {
-  case "Identifier": name = key.name; break
-  case "Literal": name = String(key.value); break
-  default: return
+  case "Identifier":
+    name = key.name
+    break
+  case "Literal":
+    name = String(key.value)
+    break
+  default:
+    return
   }
   let {kind} = prop
   if (this.options.ecmaVersion >= 6) {
@@ -235,7 +249,7 @@ pp.parseMaybeUnary = function(refDestructuringErrors, sawUnary) {
     this.checkExpressionErrors(refDestructuringErrors, true)
     if (update) this.checkLValSimple(node.argument)
     else if (this.strict && node.operator === "delete" &&
-             node.argument.type === "Identifier")
+      node.argument.type === "Identifier")
       this.raiseRecoverable(node.start, "Deleting local variable in strict mode")
     else sawUnary = true
     expr = this.finishNode(node, update ? "UpdateExpression" : "UnaryExpression")
@@ -276,8 +290,8 @@ pp.parseExprSubscripts = function(refDestructuringErrors) {
 
 pp.parseSubscripts = function(base, startPos, startLoc, noCalls) {
   let maybeAsyncArrow = this.options.ecmaVersion >= 8 && base.type === "Identifier" && base.name === "async" &&
-      this.lastTokEnd === base.end && !this.canInsertSemicolon() && base.end - base.start === 5 &&
-      this.potentialArrowAt === base.start
+    this.lastTokEnd === base.end && !this.canInsertSemicolon() && base.end - base.start === 5 &&
+    this.potentialArrowAt === base.start
   let optionalChained = false
 
   while (true) {
@@ -314,7 +328,8 @@ pp.parseSubscript = function(base, startPos, startLoc, noCalls, maybeAsyncArrow,
     }
     base = this.finishNode(node, "MemberExpression")
   } else if (!noCalls && this.eat(tt.parenL)) {
-    let refDestructuringErrors = new DestructuringErrors, oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldAwaitIdentPos = this.awaitIdentPos
+    let refDestructuringErrors = new DestructuringErrors, oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos,
+        oldAwaitIdentPos = this.awaitIdentPos
     this.yieldPos = 0
     this.awaitPos = 0
     this.awaitIdentPos = 0
@@ -371,12 +386,12 @@ pp.parseExprAtom = function(refDestructuringErrors) {
     this.next()
     if (this.type === tt.parenL && !this.allowDirectSuper)
       this.raise(node.start, "super() call outside constructor of a subclass")
-    // The `super` keyword can appear at below:
-    // SuperProperty:
-    //     super [ Expression ]
-    //     super . IdentifierName
-    // SuperCall:
-    //     super ( Arguments )
+      // The `super` keyword can appear at below:
+      // SuperProperty:
+      //     super [ Expression ]
+      //     super . IdentifierName
+      // SuperCall:
+      //     super ( Arguments )
     if (this.type !== tt.dot && this.type !== tt.bracketL && this.type !== tt.parenL)
       this.unexpected()
     return this.finishNode(node, "Super")
@@ -409,10 +424,13 @@ pp.parseExprAtom = function(refDestructuringErrors) {
     node.regex = {pattern: value.pattern, flags: value.flags}
     return node
 
-  case tt.num: case tt.string:
+  case tt.num:
+  case tt.string:
     return this.parseLiteral(this.value)
 
-  case tt._null: case tt._true: case tt._false:
+  case tt._null:
+  case tt._true:
+  case tt._false:
     node = this.startNode()
     node.value = this.type === tt._null ? null : this.type === tt._true
     node.raw = this.type.keyword
@@ -541,7 +559,8 @@ pp.parseParenAndDistinguishExpression = function(canBeArrow) {
 
     let innerStartPos = this.start, innerStartLoc = this.startLoc
     let exprList = [], first = true, lastIsComma = false
-    let refDestructuringErrors = new DestructuringErrors, oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, spreadStart
+    let refDestructuringErrors = new DestructuringErrors, oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos,
+        spreadStart
     this.yieldPos = 0
     this.awaitPos = 0
     // Do not save awaitIdentPos to allow checking awaits nested in parameters
@@ -767,9 +786,9 @@ pp.parsePropertyValue = function(prop, isPattern, isGenerator, isAsync, startPos
     prop.method = true
     prop.value = this.parseMethod(isGenerator, isAsync)
   } else if (!isPattern && !containsEsc &&
-             this.options.ecmaVersion >= 5 && !prop.computed && prop.key.type === "Identifier" &&
-             (prop.key.name === "get" || prop.key.name === "set") &&
-             (this.type !== tt.comma && this.type !== tt.braceR && this.type !== tt.eq)) {
+    this.options.ecmaVersion >= 5 && !prop.computed && prop.key.type === "Identifier" &&
+    (prop.key.name === "get" || prop.key.name === "set") &&
+    (this.type !== tt.comma && this.type !== tt.braceR && this.type !== tt.eq)) {
     if (isGenerator || isAsync) this.unexpected()
     prop.kind = prop.key.name
     this.parsePropertyName(prop)
@@ -829,7 +848,8 @@ pp.initFunction = function(node) {
 // Parse object or class method.
 
 pp.parseMethod = function(isGenerator, isAsync, allowDirectSuper) {
-  let node = this.startNode(), oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos, oldAwaitIdentPos = this.awaitIdentPos
+  let node = this.startNode(), oldYieldPos = this.yieldPos, oldAwaitPos = this.awaitPos,
+      oldAwaitIdentPos = this.awaitIdentPos
 
   this.initFunction(node)
   if (this.options.ecmaVersion >= 6)
@@ -991,7 +1011,7 @@ pp.parseIdent = function(liberal, isBinding) {
     // But there is no chance to pop the context if the keyword is consumed as an identifier such as a property name.
     // If the previous token is a dot, this does not apply because the context-managing code already ignored the keyword
     if ((node.name === "class" || node.name === "function") &&
-        (this.lastTokEnd !== this.lastTokStart + 1 || this.input.charCodeAt(this.lastTokStart) !== 46)) {
+      (this.lastTokEnd !== this.lastTokStart + 1 || this.input.charCodeAt(this.lastTokStart) !== 46)) {
       this.context.pop()
     }
   } else {

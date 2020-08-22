@@ -8,6 +8,7 @@ import {lineBreak, lineBreakG, isNewLine, nonASCIIwhitespace} from "./whitespace
 // Object type used to represent tokens. Note that normally, tokens
 // simply exist as properties on the parser object. This is only
 // used for the onToken callback and the external tokenizer.
+// 用于表示标记的对象类型。请注意，通常标记只是作为属性存在于解析器对象上。这仅用于 onToken 回调和外部令牌生成器。
 
 export class Token {
   constructor(p) {
@@ -27,6 +28,7 @@ export class Token {
 const pp = Parser.prototype
 
 // Move to the next token
+// 移到下一个 token
 
 pp.next = function(ignoreEscapeSequenceInKeyword) {
   if (!ignoreEscapeSequenceInKeyword && this.type.keyword && this.containsEsc)
@@ -62,6 +64,7 @@ if (typeof Symbol !== "undefined")
 
 // Toggle strict mode. Re-reads the next number or string to please
 // pedantic tests (`"use strict"; 010;` should fail).
+// 切换严格模式。重新读取下一个数字或字符串，以进行趣味测试 (`"use strict"; 010;` should fail)
 
 pp.curContext = function() {
   return this.context[this.context.length - 1]
@@ -69,6 +72,7 @@ pp.curContext = function() {
 
 // Read a single token, updating the parser object's token-related
 // properties.
+// 读取单个 token，更新 Parser 对象的 token 相关属性。
 
 pp.nextToken = function() {
   let curContext = this.curContext()
@@ -175,6 +179,7 @@ pp.skipSpace = function() {
 // maintains `context` and `exprAllowed`, and skips the space after
 // the token, so that the next one's `start` will point at the
 // right position.
+// 在每个令牌的末尾调用。设置`end`、`val`，并维护 `context` 和 `exprAllowed` ，并跳过令牌后的空格，以便下一个 `start` 指向正确的位置。
 
 pp.finishToken = function(type, val) {
   this.end = this.pos

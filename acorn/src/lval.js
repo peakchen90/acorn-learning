@@ -7,7 +7,7 @@ const pp = Parser.prototype
 
 // Convert existing expression atom to assignable pattern
 // if possible.
-
+// 如果可能，将现有的表达原子转换为可分配的模式
 pp.toAssignable = function(node, isBinding, refDestructuringErrors) {
   if (this.options.ecmaVersion >= 6 && node) {
     switch (node.type) {

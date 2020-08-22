@@ -34,6 +34,7 @@ pp.strictDirective = function(start) {
 
 // Predicate that tests whether the next token is of the given
 // type, and if yes, consumes it as a side effect.
+// 如果下一个 token 是指定的类型，消费它并继续下一个
 
 pp.eat = function(type) {
   if (this.type === type) {
@@ -45,12 +46,14 @@ pp.eat = function(type) {
 }
 
 // Tests whether parsed token is a contextual keyword.
+// 检测 token 是否为指定关键字。
 
 pp.isContextual = function(name) {
   return this.type === tt.name && this.value === name && !this.containsEsc
 }
 
 // Consumes contextual keyword if possible.
+// 消费关键字
 
 pp.eatContextual = function(name) {
   if (!this.isContextual(name)) return false
@@ -59,12 +62,14 @@ pp.eatContextual = function(name) {
 }
 
 // Asserts that following token is given contextual keyword.
+// 期望接下来的一个 token 是指定的关键字
 
 pp.expectContextual = function(name) {
   if (!this.eatContextual(name)) this.unexpected()
 }
 
 // Test whether a semicolon can be inserted at the current position.
+// 检测是否可以在当前位置插入分号
 
 pp.canInsertSemicolon = function() {
   return this.type === tt.eof ||
@@ -82,6 +87,7 @@ pp.insertSemicolon = function() {
 
 // Consume a semicolon, or, failing that, see if we are allowed to
 // pretend that there is a semicolon at this position.
+// 消费一个分号，否则看看是否允许我们假装在此位置有分号。
 
 pp.semicolon = function() {
   if (!this.eat(tt.semi) && !this.insertSemicolon()) this.unexpected()
@@ -99,12 +105,14 @@ pp.afterTrailingComma = function(tokType, notNext) {
 
 // Expect a token of a given type. If found, consume it, otherwise,
 // raise an unexpected token error.
+// 期望消费一个指定类型的 token，如果是，消费这个token，否则抛出 token 错误
 
 pp.expect = function(type) {
   this.eat(type) || this.unexpected()
 }
 
 // Raise an unexpected token error.
+// 抛出 unexpected token error
 
 pp.unexpected = function(pos) {
   this.raise(pos != null ? pos : this.start, "Unexpected token")

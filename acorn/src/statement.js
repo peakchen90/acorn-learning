@@ -4,7 +4,14 @@ import {lineBreak, skipWhiteSpace} from "./whitespace.js"
 import {isIdentifierStart, isIdentifierChar, keywordRelationalOperator} from "./identifier.js"
 import {has} from "./util.js"
 import {DestructuringErrors} from "./parseutil.js"
-import {functionFlags, SCOPE_SIMPLE_CATCH, BIND_SIMPLE_CATCH, BIND_LEXICAL, BIND_VAR, BIND_FUNCTION} from "./scopeflags.js"
+import {
+  functionFlags,
+  SCOPE_SIMPLE_CATCH,
+  BIND_SIMPLE_CATCH,
+  BIND_LEXICAL,
+  BIND_VAR,
+  BIND_FUNCTION
+} from "./scopeflags.js"
 
 const pp = Parser.prototype
 
@@ -14,6 +21,8 @@ const pp = Parser.prototype
 // statements, and wraps them in a Program node.  Optionally takes a
 // `program` argument.  If present, the statements will be appended
 // to its body instead of creating a new node.
+// 解析程序。初始化解析器，读取任意数量的语句，并将它们包装在 Program 节点中。
+// 接受一个 `program` 参数（可选）。如果存在，则语句将附加到其主体，而不是创建新节点。
 
 pp.parseTopLevel = function(node) {
   let exports = {}
@@ -42,6 +51,8 @@ pp.isLet = function(context) {
   // Statement) is allowed here. If context is not empty then only a Statement
   // is allowed. However, `let [` is an explicit negative lookahead for
   // ExpressionStatement, so special-case it first.
+  // 对于模棱两可的情况，请确定此处是否允许使用 LexicalDeclaration（或仅声明）。
+  // 如果上下文不为空，则仅允许使用 Statement。但是，`let [` 是 ExpressionStatement 的显式否定前瞻，因此首先特殊。
   if (nextCh === 91) return true // '['
   if (context) return false
 
@@ -56,6 +67,7 @@ pp.isLet = function(context) {
 }
 
 // check 'async [no LineTerminator here] function'
+// 检测 async 函数
 // - 'async /*foo*/ function' is OK.
 // - 'async /*\n*/ function' is invalid.
 pp.isAsyncFunction = function() {
@@ -70,12 +82,14 @@ pp.isAsyncFunction = function() {
     (next + 8 === this.input.length || !isIdentifierChar(this.input.charAt(next + 8)))
 }
 
-// Parse a single statement.
+// Parse a single statement. 解析单条语句
 //
 // If expecting a statement and finding a slash operator, parse a
 // regular expression literal. This is to handle cases like
 // `if (foo) /blah/.exec(foo)`, where looking at the previous token
 // does not help.
+// 如果期望一条语句并找到一个斜杠运算符，则解析一个正则表达式文字。
+// 这是为了处理诸如 `if (foo) /blah/.exec(foo)` 之类的情况，在这种情况下查看前一个标记没有帮助。
 
 pp.parseStatement = function(context, topLevel, exports) {
   let starttype = this.type, node = this.startNode(), kind
@@ -88,34 +102,51 @@ pp.parseStatement = function(context, topLevel, exports) {
   // Most types of statements are recognized by the keyword they
   // start with. Many are trivial to parse, some require a bit of
   // complexity.
+  // 大多数类型的语句都可以通过它们开头的关键字来识别。许多解析起来很琐碎，有些则需要一些复杂性。
 
   switch (starttype) {
-  case tt._break: case tt._continue: return this.parseBreakContinueStatement(node, starttype.keyword)
-  case tt._debugger: return this.parseDebuggerStatement(node)
-  case tt._do: return this.parseDoStatement(node)
-  case tt._for: return this.parseForStatement(node)
+  case tt._break:
+  case tt._continue:
+    return this.parseBreakContinueStatement(node, starttype.keyword)
+  case tt._debugger:
+    return this.parseDebuggerStatement(node)
+  case tt._do:
+    return this.parseDoStatement(node)
+  case tt._for:
+    return this.parseForStatement(node)
   case tt._function:
     // Function as sole body of either an if statement or a labeled statement
     // works, but not when it is part of a labeled statement that is the sole
     // body of an if statement.
+    // 作为 if 语句或带标签的语句的唯一主体起作用的函数起作用，但是当它作为带标签的语句的一部分（即 if 语句的唯一主体）起作用时，则不起作用。
     if ((context && (this.strict || context !== "if" && context !== "label")) && this.options.ecmaVersion >= 6) this.unexpected()
     return this.parseFunctionStatement(node, false, !context)
   case tt._class:
     if (context) this.unexpected()
     return this.parseClass(node, true)
-  case tt._if: return this.parseIfStatement(node)
-  case tt._return: return this.parseReturnStatement(node)
-  case tt._switch: return this.parseSwitchStatement(node)
-  case tt._throw: return this.parseThrowStatement(node)
-  case tt._try: return this.parseTryStatement(node)
-  case tt._const: case tt._var:
+  case tt._if:
+    return this.parseIfStatement(node)
+  case tt._return:
+    return this.parseReturnStatement(node)
+  case tt._switch:
+    return this.parseSwitchStatement(node)
+  case tt._throw:
+    return this.parseThrowStatement(node)
+  case tt._try:
+    return this.parseTryStatement(node)
+  case tt._const:
+  case tt._var:
     kind = kind || this.value
     if (context && kind !== "var") this.unexpected()
     return this.parseVarStatement(node, kind)
-  case tt._while: return this.parseWhileStatement(node)
-  case tt._with: return this.parseWithStatement(node)
-  case tt.braceL: return this.parseBlock(true, node)
-  case tt.semi: return this.parseEmptyStatement(node)
+  case tt._while:
+    return this.parseWhileStatement(node)
+  case tt._with:
+    return this.parseWithStatement(node)
+  case tt.braceL:
+    return this.parseBlock(true, node)
+  case tt.semi:
+    return this.parseEmptyStatement(node)
   case tt._export:
   case tt._import:
     if (this.options.ecmaVersion > 10 && starttype === tt._import) {
@@ -139,6 +170,8 @@ pp.parseStatement = function(context, topLevel, exports) {
     // simply start parsing an expression, and afterwards, if the
     // next token is a colon and the expression was a simple
     // Identifier node, we switch to interpreting it as a label.
+    // 如果该语句不是以声明关键字或花括号开头的，则为 ExpressionStatement 或 LabeledStatement。
+    // 我们只是开始解析一个表达式，然后，如果下一个标记是一个冒号，并且该表达式是一个简单的 Identifier 节点，则切换为将其解释为标签。
   default:
     if (this.isAsyncFunction()) {
       if (context) this.unexpected()
@@ -165,6 +198,7 @@ pp.parseBreakContinueStatement = function(node, keyword) {
 
   // Verify that there is an actual destination to break or
   // continue to.
+  // 确认有实际的定位目的可以中断或继续
   let i = 0
   for (; i < this.labels.length; ++i) {
     let lab = this.labels[i]
@@ -204,6 +238,9 @@ pp.parseDoStatement = function(node) {
 // whether the next token is `in` or `of`. When there is no init
 // part (semicolon immediately after the opening parenthesis), it
 // is a regular `for` loop.
+// 区分 `for` 和 `for`/`in` 或 `for`/`of` 循环是不平凡的。
+// 基本上，我们必须解析初始的 `var` 语句或表达式，不允许 `in` 运算符（请参阅parseExpression的第二个参数），
+// 然后检查下一个标记是 `in` 还是 `of。当没有初始化部分时（在左括号后紧跟分号），这是一个常规的 `for` 循环。
 
 pp.parseForStatement = function(node) {
   this.next()
@@ -259,6 +296,7 @@ pp.parseIfStatement = function(node) {
   this.next()
   node.test = this.parseParenExpression()
   // allow function declarations in branches, but only in non-strict mode
+  // 允许在 if 分支中声明函数，但只能在非严格模式下
   node.consequent = this.parseStatement("if")
   node.alternate = this.eat(tt._else) ? this.parseStatement("if") : null
   return this.finishNode(node, "IfStatement")
@@ -272,9 +310,13 @@ pp.parseReturnStatement = function(node) {
   // In `return` (and `break`/`continue`), the keywords with
   // optional arguments, we eagerly look for a semicolon or the
   // possibility to insert one.
+  // 在带有可选参数的关键字 `return`（`break`/`continue`）中，我们急切地寻找分号或插入一个分号的可能性。
 
   if (this.eat(tt.semi) || this.insertSemicolon()) node.argument = null
-  else { node.argument = this.parseExpression(); this.semicolon() }
+  else {
+    node.argument = this.parseExpression()
+    this.semicolon()
+  }
   return this.finishNode(node, "ReturnStatement")
 }
 
@@ -289,6 +331,7 @@ pp.parseSwitchStatement = function(node) {
   // Statements under must be grouped (by label) in SwitchCase
   // nodes. `cur` is used to keep the node that we are currently
   // adding statements to.
+  // 语句必须在 SwitchCase 节点中分组（按标签）。 `cur` 用于保留我们当前要添加语句的节点。
 
   let cur
   for (let sawDefault = false; this.type !== tt.braceR;) {
@@ -328,6 +371,7 @@ pp.parseThrowStatement = function(node) {
 }
 
 // Reused empty array added for node fields that are always empty.
+// 为始终为空的节点字段添加了重用的空数组
 
 const empty = []
 
@@ -397,6 +441,7 @@ pp.parseLabeledStatement = function(node, maybeName, expr, context) {
     let label = this.labels[i]
     if (label.statementStart === node.start) {
       // Update information about previous labels on this node
+      // 更新有关此节点的上一个标签的信息
       label.statementStart = this.start
       label.kind = kind
     } else break
@@ -417,6 +462,7 @@ pp.parseExpressionStatement = function(node, expr) {
 // Parse a semicolon-enclosed block of statements, handling `"use
 // strict"` declarations when `allowStrict` is true (used for
 // function bodies).
+// 解析一个用分号括起来的语句块，当 `allowStrict` 为 true（用于函数体）时处理 `"use strict"` 声明。
 
 pp.parseBlock = function(createNewLexicalScope = true, node = this.startNode(), exitStrict) {
   node.body = []
@@ -435,6 +481,7 @@ pp.parseBlock = function(createNewLexicalScope = true, node = this.startNode(), 
 // Parse a regular `for` loop. The disambiguation code in
 // `parseStatement` will already have parsed the init statement or
 // expression.
+// 解析 `for` 循环。`parseStatement` 中的歧义消除代码将已经解析了初始化语句或表达式。
 
 pp.parseFor = function(node, init) {
   node.init = init
@@ -451,6 +498,7 @@ pp.parseFor = function(node, init) {
 
 // Parse a `for`/`in` and `for`/`of` loop, which are almost
 // same from parser's perspective.
+// 解析 `for`/`in` 和 `for`/`of` 循环，从解析器角度来看它们几乎是相同的
 
 pp.parseForIn = function(node, init) {
   const isForIn = this.type === tt._in
@@ -484,11 +532,12 @@ pp.parseForIn = function(node, init) {
 }
 
 // Parse a list of variable declarations.
+// 解析变量声明列表
 
 pp.parseVar = function(node, isFor, kind) {
   node.declarations = []
   node.kind = kind
-  for (;;) {
+  for (; ;) {
     let decl = this.startNode()
     this.parseVarId(decl, kind)
     if (this.eat(tt.eq)) {
@@ -515,6 +564,7 @@ const FUNC_STATEMENT = 1, FUNC_HANGING_STATEMENT = 2, FUNC_NULLABLE_ID = 4
 
 // Parse a function declaration or literal (depending on the
 // `statement & FUNC_STATEMENT`).
+// 解析函数声明
 
 // Remove `allowExpressionBody` for 7.0.0, as it is only called with false
 pp.parseFunction = function(node, statement, allowExpressionBody, isAsync) {
@@ -563,6 +613,7 @@ pp.parseFunctionParams = function(node) {
 
 // Parse a class declaration or literal (depending on the
 // `isStatement` parameter).
+// 解析 class 声明
 
 pp.parseClass = function(node, isStatement) {
   this.next()
@@ -628,7 +679,7 @@ pp.parseClassElement = function(constructorAllowsSuper) {
   let {key} = method
   let allowsDirectSuper = false
   if (!method.computed && !method.static && (key.type === "Identifier" && key.name === "constructor" ||
-      key.type === "Literal" && key.value === "constructor")) {
+    key.type === "Literal" && key.value === "constructor")) {
     if (method.kind !== "method") this.raise(key.start, "Constructor can't have get/set modifier")
     if (isGenerator) this.raise(key.start, "Constructor can't be a generator")
     if (isAsync) this.raise(key.start, "Constructor can't be an async method")
@@ -669,6 +720,7 @@ pp.parseClassSuper = function(node) {
 }
 
 // Parses module export declaration.
+// 解析模块导出声明
 
 pp.parseExport = function(node, exports) {
   this.next()
@@ -779,6 +831,7 @@ pp.shouldParseExportStatement = function() {
 }
 
 // Parses a comma-separated list of module exports.
+// 解析以逗号分隔的模块导出列表
 
 pp.parseExportSpecifiers = function(exports) {
   let nodes = [], first = true
@@ -800,6 +853,7 @@ pp.parseExportSpecifiers = function(exports) {
 }
 
 // Parses import declaration.
+// 解析 import 语句
 
 pp.parseImport = function(node) {
   this.next()
@@ -817,6 +871,7 @@ pp.parseImport = function(node) {
 }
 
 // Parses a comma-separated list of module imports.
+// 解析以逗号分隔的模块导入列表
 
 pp.parseImportSpecifiers = function() {
   let nodes = [], first = true

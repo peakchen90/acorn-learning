@@ -7,15 +7,19 @@ class Scope {
   constructor(flags) {
     this.flags = flags
     // A list of var-declared names in the current lexical scope
+    // 当前词法作用域内的 var 声明名称列表
     this.var = []
     // A list of lexically-declared names in the current lexical scope
+    // 当前词法作用域内的词法声明名称列表
     this.lexical = []
     // A list of lexically-declared FunctionDeclaration names in the current lexical scope
+    // 当前词法作用域中声明的 function 名称的列表
     this.functions = []
   }
 }
 
 // The functions in this module keep track of declared variables in the current scope in order to detect duplicate variable names.
+// 此模块中的函数跟踪当前作用域中已声明的变量，以便检测重复的变量名称。
 
 pp.enterScope = function(flags) {
   this.scopeStack.push(new Scope(flags))
@@ -28,6 +32,7 @@ pp.exitScope = function() {
 // The spec says:
 // > At the top level of a function, or script, function declarations are
 // > treated like var declarations rather than like lexical declarations.
+// 规格说明：在函数或脚本的顶层，函数声明是被视为 var 声明，而不是词法声明。
 pp.treatFunctionsAsVarInScope = function(scope) {
   return (scope.flags & SCOPE_FUNCTION) || !this.inModule && (scope.flags & SCOPE_TOP)
 }
@@ -87,6 +92,7 @@ pp.currentVarScope = function() {
 }
 
 // Could be useful for `this`, `new.target`, `super()`, `super.property`, and `super[property]`.
+// 对this、new.target、super()、super.property 和 super[property] 有用
 pp.currentThisScope = function() {
   for (let i = this.scopeStack.length - 1;; i--) {
     let scope = this.scopeStack[i]

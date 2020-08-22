@@ -268,3 +268,7 @@ Plugins for ECMAScript proposals:
    - [`acorn-class-fields`](https://github.com/acornjs/acorn-class-fields): Parse [class fields proposal](https://github.com/tc39/proposal-class-fields)
    - [`acorn-import-meta`](https://github.com/acornjs/acorn-import-meta): Parse [import.meta proposal](https://github.com/tc39/proposal-import-meta)
    - [`acorn-private-methods`](https://github.com/acornjs/acorn-private-methods): parse [private methods, getters and setters proposal](https://github.com/tc39/proposal-private-methods)n
+
+
+## ASCII 码参考
+[https://baike.baidu.com/item/ASCII#3](https://baike.baidu.com/item/ASCII#3)

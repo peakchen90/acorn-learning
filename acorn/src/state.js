@@ -25,6 +25,7 @@ export class Parser {
     // Used to signal to callers of `readWord1` whether the word
     // contained any escape sequences. This is needed because words with
     // escape sequences must not be interpreted as keywords.
+    // 用于向 `readWord1` 的调用者发出信号，告知该单词是否包含任何转义序列。这是必需的，因为带有转义序列的单词一定不能解释为关键字。
     this.containsEsc = false
 
     // Set up token state
@@ -39,50 +40,55 @@ export class Parser {
       this.curLine = 1
     }
 
-    // Properties of the current token:
-    // Its type
+    // Properties of the current token:  当前 token 的一些属性
+    // Its type - 类型
     this.type = tt.eof
-    // For tokens that include more information than their type, the value
+    // For tokens that include more information than their type, the value - 比类型包含更多信息
     this.value = null
-    // Its start and end offset
+    // Its start and end offset - 开始和结束位置
     this.start = this.end = this.pos
     // And, if locations are used, the {line, column} object
-    // corresponding to those offsets
+    // corresponding to those offsets 位置信息
     this.startLoc = this.endLoc = this.curPosition()
 
-    // Position information for the previous token
+    // Position information for the previous token - 前一个 token 的位置信息
     this.lastTokEndLoc = this.lastTokStartLoc = null
     this.lastTokStart = this.lastTokEnd = this.pos
 
     // The context stack is used to superficially track syntactic
     // context to predict whether a regular expression is allowed in a
     // given position.
+    // 上下文堆栈用于表面跟踪语法上下文，以预测在给定位置是否允许使用正常的表达式。
     this.context = this.initialContext()
     this.exprAllowed = true
 
-    // Figure out if it's a module code.
+    // Figure out if it's a module code. - 是否是模块代码
     this.inModule = options.sourceType === "module"
     this.strict = this.inModule || this.strictDirective(this.pos)
 
     // Used to signify the start of a potential arrow function
+    // 用于表示潜在箭头函数的开始
     this.potentialArrowAt = -1
 
     // Positions to delayed-check that yield/await does not exist in default parameters.
+    // 延迟检查位置上是否存在 yield/await
     this.yieldPos = this.awaitPos = this.awaitIdentPos = 0
-    // Labels in scope.
+    // Labels in scope. - 作用域内的 label（和 break 或 continue 语句一起使用）
     this.labels = []
-    // Thus-far undefined exports.
+    // Thus-far undefined exports. - 迄今未定义的导出
     this.undefinedExports = {}
 
     // If enabled, skip leading hashbang line.
+    // 如果启用，请跳过哈希行开头（一般在 node 命令行常见）
     if (this.pos === 0 && options.allowHashBang && this.input.slice(0, 2) === "#!")
       this.skipLineComment(2)
 
     // Scope tracking for duplicate variable names (see scope.js)
+    // 跟踪是否有重复的变量名
     this.scopeStack = []
     this.enterScope(SCOPE_TOP)
 
-    // For RegExp validation
+    // For RegExp validation - 正则表达式的验证状态
     this.regexpState = null
   }
 

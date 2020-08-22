@@ -1,6 +1,7 @@
 // The algorithm used to determine whether a regexp can appear at a
 // given point in the program is loosely based on sweet.js' approach.
 // See https://github.com/mozilla/sweet.js/wiki/design
+// 用于确定正则表达式是否可以出现在程序中给定点的算法是基于 sweet.js 的方法。
 
 import {Parser} from "./state.js"
 import {types as tt} from "./tokentype.js"

@@ -15,9 +15,10 @@ export class Node {
   }
 }
 
-// Start an AST node, attaching a start offset.
-
 const pp = Parser.prototype
+
+// Start an AST node, attaching a start offset.
+// 开始一个 AST 节点，并附加一个开始位置
 
 pp.startNode = function() {
   return new Node(this, this.start, this.startLoc)
@@ -28,6 +29,7 @@ pp.startNodeAt = function(pos, loc) {
 }
 
 // Finish an AST node, adding `type` and `end` properties.
+// 完成 AST 节点，添加 `type` and `end` 属性
 
 function finishNodeAt(node, type, pos, loc) {
   node.type = type
@@ -44,6 +46,7 @@ pp.finishNode = function(node, type) {
 }
 
 // Finish node at given position
+// 在给定的位置完成 node 节点
 
 pp.finishNodeAt = function(node, type, pos, loc) {
   return finishNodeAt.call(this, node, type, pos, loc)

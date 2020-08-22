@@ -40,6 +40,7 @@ export class RegExpValidationState {
 
   // If u flag is given, this returns the code point at the index (it combines a surrogate pair).
   // Otherwise, this returns the code unit of the index (can be a part of a surrogate pair).
+  // 如果给出 u 标志，则返回索引处的码点（它结合了一个代理对）。否则，这将返回索引的代码单元（可以是代理对的一部分）。
   at(i, forceU = false) {
     const s = this.source
     const l = s.length
@@ -97,6 +98,7 @@ function codePointToString(ch) {
 
 /**
  * Validate the flags part of a given RegExpLiteral.
+ * 验证正则表达式字面量的 flag
  *
  * @param {RegExpValidationState} state The state to validate RegExp.
  * @returns {void}
@@ -118,6 +120,7 @@ pp.validateRegExpFlags = function(state) {
 
 /**
  * Validate the pattern part of a given RegExpLiteral.
+ * 验证给定正则表达式字面量的模式部分
  *
  * @param {RegExpValidationState} state The state to validate RegExp.
  * @returns {void}
