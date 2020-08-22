@@ -1,4 +1,4 @@
-# Acorn
+# Acorn 源码学习
 
 [![Build Status](https://travis-ci.org/acornjs/acorn.svg?branch=master)](https://travis-ci.org/acornjs/acorn)
 [![NPM version](https://img.shields.io/npm/v/acorn.svg)](https://www.npmjs.com/package/acorn)

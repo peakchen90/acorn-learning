@@ -77,6 +77,7 @@ pp.updateContext = function(prevType) {
 }
 
 // Token-specific context update code
+// 特别需要更新的 token 类型
 
 tt.parenR.updateContext = tt.braceR.updateContext = function() {
   if (this.context.length === 1) {
