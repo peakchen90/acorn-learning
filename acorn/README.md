@@ -100,6 +100,8 @@ const ast = acorn.parse(code)
 acorn 是一边解析 Token，一边解析语句，由语法分析的需要去推动解析 Token。大致的调用流程如下：
 ![acorn解析流程图](./resource/acorn-process.jpg)
 
+> PS: 流程图片查看不了请 [访问国内CDN地址](https://wx1.sbimg.cn/2020/08/23/3ItQn.png)
+
 
 
 
