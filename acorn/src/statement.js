@@ -27,6 +27,8 @@ const pp = Parser.prototype
 pp.parseTopLevel = function(node) {
   let exports = {}
   if (!node.body) node.body = []
+
+  // 依次解析每个语句块
   while (this.type !== tt.eof) {
     let stmt = this.parseStatement(null, true, exports)
     node.body.push(stmt)

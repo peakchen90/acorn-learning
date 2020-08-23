@@ -9,11 +9,11 @@ export default {
       name: "acorn",
       sourcemap: true
     },
-    {
-      file: "acorn/dist/acorn.mjs",
-      format: "es",
-      sourcemap: true
-    }
+    // {
+    //   file: "acorn/dist/acorn.mjs",
+    //   format: "es",
+    //   sourcemap: true
+    // }
   ],
   plugins: [
     buble({transforms: {dangerousForOf: true}})

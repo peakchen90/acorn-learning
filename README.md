@@ -6,6 +6,11 @@
 
 A tiny, fast JavaScript parser, written completely in JavaScript.
 
+## 阅读笔记
+阅读过程中会翻译英文注释，并且在适当的地方加上自己理解的注释。
+
+- [acorn 核心解析库说明](./acorn/README.md)
+
 ## Community
 
 Acorn is open source software released under an
