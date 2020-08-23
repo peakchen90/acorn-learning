@@ -61,7 +61,7 @@ const ast = acorn.parse(code)
 
 #### 解析 Token（词法分析）
 
-> **解析 Token 在 [src/tokenize.js 文件里](./src/tokenize.js)。**
+> 解析 Token 在 [src/tokenize.js 文件里](./src/tokenize.js)
 
 ##### `this.nextToken()`
 
@@ -73,7 +73,7 @@ const ast = acorn.parse(code)
 
 #### 解析语句（语法分析）
 
-> **以下方法针对不同类型的语句有不同的处理方法，下面仅以解析变量声明语句作为示例。 完整的不同类型的语句解析在 [src/statement.js 文件里](./src/statement.js)。**
+> 以下方法针对不同类型的语句有不同的处理方法，下面仅以解析变量声明语句作为示例。 完整的不同类型的语句解析在 [src/statement.js 文件里](./src/statement.js)
 
 ##### `this.parseTopLevel()` 
 解析包装顶层节点，正式进入到解析流程。这个方法会依次调用 `this.parseStatement()` 方法解析每一条语句（上面实例会调用2次该方法）。
