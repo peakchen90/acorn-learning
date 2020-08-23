@@ -142,3 +142,4 @@ function plugin(BaseParser: typeof acorn.Parser): typeof acorn.Parser {
 ## 链接
 
 - [ASCII 码参考](https://baike.baidu.com/item/ASCII#3)
+- [webpack与rollup背后的acorn](https://zhuanlan.zhihu.com/p/149323563)
