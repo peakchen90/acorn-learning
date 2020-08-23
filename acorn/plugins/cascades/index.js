@@ -13,7 +13,6 @@ module.exports = function (Parser) {
     cascades: new TokenType('..', {
       isLoop: true,
       beforeExpr: true,
-      binop: -1 // 二元运算符优先级，设置为最低
     })
   }
 
