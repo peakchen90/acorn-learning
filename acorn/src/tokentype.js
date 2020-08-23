@@ -90,7 +90,7 @@ export const types = {
   //
   // `binop`, when present, specifies that this operator is a binary
   // operator, and will refer to its precedence.
-  // `binop`（如果存在）指定此运算符为二进制运算符，并将引用其优先级。
+  // `binop`（如果存在）指定此运算符为二元运算符，并将引用其优先级。
   //
   // `prefix` and `postfix` mark the operator as a prefix or postfix
   // unary operator.

@@ -234,6 +234,7 @@ pp.buildBinary = function(startPos, startLoc, left, right, op, logical) {
 }
 
 // Parse unary operators, both prefix and postfix.
+// 解析一元运算符，包括前缀和后缀
 
 pp.parseMaybeUnary = function(refDestructuringErrors, sawUnary) {
   let startPos = this.start, startLoc = this.startLoc, expr

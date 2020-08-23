@@ -103,30 +103,42 @@ acorn 是一边解析 Token，一边解析语句，由语法分析的需要去�
 > PS: 流程图片查看不了请 [访问国内CDN地址](https://wx1.sbimg.cn/2020/08/23/3ItQn.png)
 
 
+## acorn 插件
 
+#### 插件使用
+```js
+const acorn = require("acorn");
+const JSXParser = acorn.Parser.extend(
+  require("acorn-jsx")()
+);
+JSXParser.parse('<div />');
+```
+
+#### 插件机制
+
+通过 `Parser.extend()` 方法加载插件，并返回被继承后的 `Parser` 类，通过继承来扩展 Parser 的功能。插件的函数签名如下：
+```ts
+function plugin(BaseParser: typeof acorn.Parser): typeof acorn.Parser {
+  return class extends BaseParser {
+    // 插件的一些方法，或覆写父类 Parser 的原型方法
+    // 如果覆写父类的方法，一般选处理自己的逻辑，然后不满足条件后再调用 super.[prototypeMethod]() 方法交由父类处理
+    
+    // 处理插件自己的逻辑，一般加上前缀避免冲突
+    xx_custom() {
+      console.log("custom method!")
+    }
+    
+    // 覆写父类原型方法
+    readToken(code) {
+      console.log("Reading a token!")
+      return super.readToken(code)
+    }
+  }
+}
+```
+
+> PS: 如果需要自定义插件参数，可以在上述例子外面再包一层 function, 传递插件的参数
 
 ## 链接
+
 - [ASCII 码参考](https://baike.baidu.com/item/ASCII#3)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
