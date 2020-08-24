@@ -97,7 +97,7 @@ const ast = acorn.parse(code)
 
 #### 解析流程总结
 
-acorn 是一边解析 Token，一边解析语句，由语法分析的需要去推动解析 Token。大致的调用流程如下：
+acorn 是一边解析 Token，一边解析语句，由语法分析的需要去推动解析接下来的 Token。大致的调用流程如下：
 ![acorn解析流程图](https://img.alicdn.com/tfs/TB1fguiSqL7gK0jSZFBXXXZZpXa-1014-847.png)
 
 > PS: 流程图片查看不了请 [访问国内CDN地址](https://img.alicdn.com/tfs/TB1fguiSqL7gK0jSZFBXXXZZpXa-1014-847.png)
