@@ -1,19 +1,20 @@
 // 转换为标准的 ES
 const walk = require('../../../acorn-walk/dist/walk')
 
-function buildMemberExpression(object, property) {
+function buildMemberExpression(object, property, computed = false) {
   return {
     type: "MemberExpression",
     object,
-    property
+    property,
+    computed
   }
 }
 
 module.exports = function transformCascades(ast) {
   walk.simple(ast, {
-    Cascades(node) {
+    CascadesExpression(node) {
       const object = node.object
-      const expressions = node.expressions.map(({ expression }) => {
+      const expressions = node.expressions.map((expression) => {
         switch (expression.type) {
           case 'Identifier':
             return buildMemberExpression(object, expression)
@@ -48,14 +49,8 @@ module.exports = function transformCascades(ast) {
     }
   }, {
     ...walk.base,
-    Cascades(node, state, c) {
-      c(node.object, state)
-      node.expressions.forEach((expr) => {
-        c(expr, state, 'CascadesExpression')
-      })
-    },
     CascadesExpression(node, state, c) {
-      c(node.expression, state)
+      // base visitor
     }
   })
 }

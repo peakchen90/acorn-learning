@@ -28,8 +28,8 @@ const ast = Parser.parse(code, {
 transformCascades(ast);
 const newCode = escodegen.generate(ast);
 
-console.log('\n\n--------------- New Code -----------------\n')
+console.log('\n\n--------------- Transform Code -----------------\n')
 console.log(newCode)
 
-console.log('\n\n-------------- Execute Code --------------\n')
+console.log('\n\n-------------- Execute Result --------------\n')
 eval(newCode)

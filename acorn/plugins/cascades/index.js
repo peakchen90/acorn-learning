@@ -1,13 +1,11 @@
+
 /**
- * 级联操作符插件
+ * 级联运算符符插件
  * @param Parser
  */
-module.exports = function (Parser) {
+module.exports = function cascades(Parser) {
   const acorn = Parser.acorn
-  const {
-    TokenType,
-    tokTypes: tt
-  } = acorn
+  const {TokenType, tokTypes: tt} = acorn
 
   const tokTypes = {
     cascades: new TokenType('..', {
@@ -16,35 +14,30 @@ module.exports = function (Parser) {
     })
   }
 
-  // 插件相关的静态数据
-  const cascades = {
-    tokTypes
-  }
-
   return class extends Parser {
     static get cascades() {
-      return cascades
+      return {
+        tokTypes
+      }
     }
 
-    cascades_parseCascades() {
-      this._cascadesDisabled = true
-      const node = this.startNode()
-      // TODO: object只当作标识符对待
-      const objectNode = this.startNode()
-      objectNode.name = this.value
-      node.object = this.finishNode(objectNode, 'Identifier')
+    cascades_parseCascades(base, startPos, startLoc) {
+      this.cascades_parsing = true
+      const node = this.startNodeAt(startPos, startLoc)
+      let lastPos
+      node.object = base
       node.expressions = []
-      this.next()
-
       while (this.type === tokTypes.cascades) {
+        lastPos = this.pos;
         this.next()
-        const wrapper = this.startNode()
-        wrapper.expression = this.parseExpression()
-        node.expressions.push(this.finishNode(wrapper, 'CascadesExpression'))
+        if (this.type === tokTypes.cascades) {
+          this.raise(lastPos, 'Expected an expression, but got ``')
+        }
+        const expr = this.parseExpression()
+        node.expressions.push(expr)
       }
-
-      this._cascadesDisabled = false
-      return this.finishNode(node, 'Cascades')
+      this.cascades_parsing = false
+      return this.finishNode(node, 'CascadesExpression')
     }
 
     getTokenFromCode(code) {
@@ -55,14 +48,15 @@ module.exports = function (Parser) {
       return super.getTokenFromCode(code)
     }
 
-    parseExprAtom(refDestructuringErrors) {
-      if(!this._cascadesDisabled && this.type === tt.name) {
-        this.skipSpace()
-        if (this.input.charCodeAt(this.pos) === 46 && this.input.charCodeAt(this.pos + 1) === 46) {
-          return this.cascades_parseCascades()
-        }
+    parseSubscript(base, startPos, startLoc, noCalls, maybeAsyncArrow, optionalChained) {
+      if (!this.cascades_parsing && this.type === tokTypes.cascades) {
+        return this.cascades_parseCascades(base, startPos, startLoc)
       }
-      return super.parseExprAtom(refDestructuringErrors)
+      return super.parseSubscript(base, startPos, startLoc, noCalls, maybeAsyncArrow, optionalChained)
+    }
+
+    updateContext(prevType) {
+      return super.updateContext(prevType);
     }
   }
 }
