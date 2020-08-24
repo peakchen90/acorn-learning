@@ -1,6 +1,6 @@
 .DS_Store
 .idea
-.vscode
+.vscode/*
 **/node_modules
 !/acorn-loose/node_modules
 /.tern-port
@@ -11,3 +11,4 @@
 /acorn-walk/dist
 !/acorn/dist/acorn.d.ts
 !/acorn/dist/acorn.mjs.d.ts
+!.vscode/launch.json
