@@ -98,9 +98,9 @@ const ast = acorn.parse(code)
 #### 解析流程总结
 
 acorn 是一边解析 Token，一边解析语句，由语法分析的需要去推动解析 Token。大致的调用流程如下：
-![acorn解析流程图](https://wx1.sbimg.cn/2020/08/23/3ItQn.png)
+![acorn解析流程图](https://img.alicdn.com/tfs/TB1fguiSqL7gK0jSZFBXXXZZpXa-1014-847.png)
 
-> PS: 流程图片查看不了请 [访问国内CDN地址](https://wx1.sbimg.cn/2020/08/23/3ItQn.png)
+> PS: 流程图片查看不了请 [访问国内CDN地址](https://img.alicdn.com/tfs/TB1fguiSqL7gK0jSZFBXXXZZpXa-1014-847.png)
 
 
 ## acorn 插件
@@ -120,17 +120,19 @@ JSXParser.parse('<div />');
 ```ts
 function plugin(BaseParser: typeof acorn.Parser): typeof acorn.Parser {
   return class extends BaseParser {
-    // 插件的一些方法，或覆写父类 Parser 的原型方法
-    // 如果覆写父类的方法，一般选处理自己的逻辑，然后不满足条件后再调用 super.[prototypeMethod]() 方法交由父类处理
+    // 插件的内部的一些方法，或覆写父类 Parser 的原型方法
+    // 如果覆写父类的方法，一般先处理自己的逻辑，然后剩下的再调用 super.[prototypeMethod]() 方法交由父类的方法处理
     
-    // 处理插件自己的逻辑，一般加上前缀避免冲突
+    // 处理插件自己的逻辑，方法名一般加上前缀避免冲突
     xx_custom() {
       console.log("custom method!")
     }
     
     // 覆写父类原型方法
     readToken(code) {
-      console.log("Reading a token!")
+      if (this.type === 'xx') {
+        return this.xx_custom()
+      }
       return super.readToken(code)
     }
   }
