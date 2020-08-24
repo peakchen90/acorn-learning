@@ -21,6 +21,15 @@
       "skipFiles": [
         "<node_internals>/**"
       ]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "acorn jsx/test.js",
+      "program": "${workspaceFolder}/acorn/plugins/jsx/test.js",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 # cascades
 Acorn 级联运算符插件
 
-实现类似 [Dart 级联运算符](https://www.dartcn.com/guides/language/language-tour#%E7%BA%A7%E8%81%94%E8%BF%90%E7%AE%97%E7%AC%A6-) 功能
+实现类似 [Dart 级联运算符](http://suo.im/5EjOjK) 功能
 
 ## 语法特性
 ```js
