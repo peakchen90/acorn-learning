@@ -96,6 +96,8 @@ pp.checkPropClash = function(prop, propHash, refDestructuringErrors) {
 // the functions will simply let the function(s) below them parse,
 // and, *if* the syntactic construct they handle is present, wrap
 // the AST node that the inner parser gave them in another node.
+// 这些嵌套，从顶部最通用的表达式类型到底部的“原子”表达式类型。大多数函数只需让它们下面的函数解析，
+// 并且，如果它们处理的语法结构存在，则将内部解析器给它们的AST节点包装到另一个节点中。
 
 // Parse a full expression. The optional arguments are used to
 // forbid the `in` operator (in for loops initalization expressions)
@@ -103,6 +105,8 @@ pp.checkPropClash = function(prop, propHash, refDestructuringErrors) {
 // property assignment in contexts where both object expression
 // and object pattern might appear (so it's possible to raise
 // delayed syntax error at correct position).
+// 解析完整表达式。可选参数用于禁止“in”运算符（in for循环初始化表达式），并为在可能出现对象表达式
+// 和对象模式的上下文中在速记属性赋值中存储“=”运算符提供引用（因此可能在正确的位置引发延迟的语法错误）
 
 pp.parseExpression = function(noIn, refDestructuringErrors) {
   let startPos = this.start, startLoc = this.startLoc
@@ -118,6 +122,7 @@ pp.parseExpression = function(noIn, refDestructuringErrors) {
 
 // Parse an assignment expression. This includes applications of
 // operators like `+=`.
+// 解析一个赋值表达式，包括运算符的运用，如：`+=`
 
 pp.parseMaybeAssign = function(noIn, refDestructuringErrors, afterLeftParse) {
   if (this.isContextual("yield")) {
@@ -169,6 +174,7 @@ pp.parseMaybeAssign = function(noIn, refDestructuringErrors, afterLeftParse) {
 }
 
 // Parse a ternary conditional (`?:`) operator.
+// 解析三元表达式 (`?:`)
 
 pp.parseMaybeConditional = function(noIn, refDestructuringErrors) {
   let startPos = this.start, startLoc = this.startLoc
@@ -186,6 +192,7 @@ pp.parseMaybeConditional = function(noIn, refDestructuringErrors) {
 }
 
 // Start the precedence parser.
+// 开始解析优先级
 
 pp.parseExprOps = function(noIn, refDestructuringErrors) {
   let startPos = this.start, startLoc = this.startLoc
@@ -199,6 +206,9 @@ pp.parseExprOps = function(noIn, refDestructuringErrors) {
 // `minPrec` provides context that allows the function to stop and
 // defer further parser to one of its callers when it encounters an
 // operator that has a lower precedence than the set it is parsing.
+// 使用运算符优先级算法解析二元表达式，`left` 是运算符左侧，`minPrec` 提供的上下文允许函数在遇到
+// 优先级低于它正在解析的集合的运算符时停止并将进一步的解析器延迟给它的一个调用方
+// 解释：就是通过 `minPrec` 参数，并比较当前运算符该值的大小，来决定
 
 pp.parseExprOp = function(left, leftStartPos, leftStartLoc, minPrec, noIn) {
   let prec = this.type.binop
@@ -214,11 +224,16 @@ pp.parseExprOp = function(left, leftStartPos, leftStartLoc, minPrec, noIn) {
       let op = this.value
       this.next()
       let startPos = this.start, startLoc = this.startLoc
+      // 递归调用 this.parseExprOp()
+      // 如果右值和其后的运算符比当前优先级高，则优先组合右侧高优先级的表达式，并整个表达式作为当前运算符的右值
+      // 否则，直接返回右值的解析结果作为当前运算符的右值
       let right = this.parseExprOp(this.parseMaybeUnary(null, false), startPos, startLoc, prec, noIn)
       let node = this.buildBinary(leftStartPos, leftStartLoc, left, right, op, logical || coalesce)
       if ((logical && this.type === tt.coalesce) || (coalesce && (this.type === tt.logicalOR || this.type === tt.logicalAND))) {
         this.raiseRecoverable(this.start, "Logical expressions and coalesce expressions cannot be mixed. Wrap either by parentheses")
       }
+      // 将当前解析的二元表达式作为左值，然后交给 this.parseExprOp() 方法递归去解析右侧接下来的的二元表达式
+      // 这样就可以把右侧所有的二元表达式全部解析出来
       return this.parseExprOp(node, leftStartPos, leftStartLoc, minPrec, noIn)
     }
   }
@@ -275,6 +290,7 @@ pp.parseMaybeUnary = function(refDestructuringErrors, sawUnary) {
 }
 
 // Parse call, dot, and `[]`-subscript expressions.
+// 解析 方法调用, `.`, [] 下标表达式
 
 pp.parseExprSubscripts = function(refDestructuringErrors) {
   let startPos = this.start, startLoc = this.startLoc
@@ -372,6 +388,8 @@ pp.parseSubscript = function(base, startPos, startLoc, noCalls, maybeAsyncArrow,
 // expression, an expression started by a keyword like `function` or
 // `new`, or an expression wrapped in punctuation like `()`, `[]`,
 // or `{}`.
+// 解析一个原子表达式，或者是一个单token表达式，一个关键字像 `function` 或 `new`，
+// 或者被 `()`, `[]`, `{}` 包裹起来的表达式
 
 pp.parseExprAtom = function(refDestructuringErrors) {
   // If a division operator appears in an expression position, the
@@ -999,6 +1017,7 @@ pp.checkUnreserved = function({start, end, name}) {
 // Parse the next token as an identifier. If `liberal` is true (used
 // when parsing properties), it will also convert keywords into
 // identifiers.
+// 将下一个token作为标识符解析，如果 `liberal` 参数为 true（通常是解析属性），将会把关键字转换成标识符
 
 pp.parseIdent = function(liberal, isBinding) {
   let node = this.startNode()
